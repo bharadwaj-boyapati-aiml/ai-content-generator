@@ -1,0 +1,24 @@
+<form id="uploadForm">
+  <input type="file" name="file" id="fileInput" />
+  <input type="text" name="input_text" placeholder="Or enter text directly" />
+  <select name="file_type" id="fileType">
+    <option value="image">Image</option>
+    <option value="pdf">PDF</option>
+  </select>
+  <button type="submit">Generate</button>
+</form>
+
+<script>
+document.getElementById("uploadForm").onsubmit = async function(e) {
+  e.preventDefault();
+  const formData = new FormData(document.getElementById("uploadForm"));
+
+  const response = await fetch("http://localhost:8000/generate-content/", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await response.json();
+  alert(data.generated_content);
+};
+</script>
