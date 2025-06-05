@@ -1,72 +1,70 @@
-from fastapi import FastAPI, File, UploadFile, Form
-from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional
-from pydantic import BaseModel
-import pytesseract
-from PIL import Image
-import fitz  # PyMuPDF
-import openai
-import io
-from dotenv import load_dotenv
 import os
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+import google.generativeai as genai
+from PIL import Image
 
-# Initialize FastAPI app
-app = FastAPI()
+# Configure Gemini API
+GOOGLE_API_KEY = "AIzaSyAasJyvMkMPNalF4hQ0-9_x_Sf_D-LX5M0"
+genai.configure(api_key=GOOGLE_API_KEY)
 
-# Allow frontend to access this API (update origins as needed)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Change in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+config = {
+    'temperature': 0.7,
+    'top_k': 20,
+    'top_p': 0.9,
+    'max_output_tokens': 4096,
+    'stop_sequences': ['<|END]|>']
+}
+safety_settings = [
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+]
+
+model = genai.GenerativeModel(
+    model_name="models/gemini-1.5-flash",
+    generation_config=config,
+    safety_settings=safety_settings
 )
 
-load_dotenv()
+app = FastAPI()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Enable CORS (important for frontend communication)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
-def extract_text_from_image(file: UploadFile):
-    image = Image.open(file.file)
-    return pytesseract.image_to_string(image)
+# Static & templating config
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-def extract_text_from_pdf(file: UploadFile):
-    pdf_bytes = file.file.read()
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    return text
 
-class TextRequest(BaseModel):
-    input_text: str
+# UI
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.post("/generate-content/")
-async def generate_content(
-    file: Optional[UploadFile] = File(None),
-    input_text: Optional[str] = Form(None),
-    file_type: Optional[str] = Form(None)
-):
-    if file:
-        if file_type == "image":
-            extracted_text = extract_text_from_image(file)
-        elif file_type == "pdf":
-            extracted_text = extract_text_from_pdf(file)
-        else:
-            return {"error": "Unsupported file type"}
-    elif input_text:
-        extracted_text = input_text
-    else:
-        return {"error": "No input provided"}
 
-    # Use ChatGPT (GPT-4 or GPT-3.5) to generate content
-    response = openai.ChatCompletion.create(
-        model="gpt-4",  # Or "gpt-3.5-turbo"
-        messages=[
-            {"role": "system", "content": "You're a helpful AI content creator."},
-            {"role": "user", "content": f"Generate engaging marketing content based on this:\n\n{extracted_text}"}
-        ]
-    )
+# Request model
+class ContentRequest(BaseModel):
+    topic: str
+    content_type: str
 
-    result = response['choices'][0]['message']['content']
-    return {"generated_content": result}
+
+# API Endpoint
+@app.post("/generate")
+def generate_content(req: ContentRequest):
+    prompt = f"Write a high-quality, engaging {req.content_type} post about: {req.topic}"
+    try:
+        response = model.generate_content(prompt)
+        return {"generated_content": response.text.strip()}
+    except Exception as e:
+        return JSONResponse(content={"generated_content": f"Error: {str(e)}"}, status_code=500)
