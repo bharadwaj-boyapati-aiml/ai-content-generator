@@ -6,3 +6,4 @@ pytesseract
 Pillow
 PyMuPDF
 google-generativeai
+jinja2
