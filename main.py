@@ -34,6 +34,7 @@ model = genai.GenerativeModel(
 
 app = FastAPI()
 
+
 # Enable CORS (important for frontend communication)
 app.add_middleware(
     CORSMiddleware,
