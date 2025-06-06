@@ -1,24 +1,37 @@
-<form id="uploadForm">
-  <input type="file" name="file" id="fileInput" />
-  <input type="text" name="input_text" placeholder="Or enter text directly" />
-  <select name="file_type" id="fileType">
-    <option value="image">Image</option>
-    <option value="pdf">PDF</option>
-  </select>
-  <button type="submit">Generate</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Content Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="container">
+    <h1>AI Content Generator</h1>
+    <p>Create engaging content for any platform using AI</p>
 
-<script>
-document.getElementById("uploadForm").onsubmit = async function(e) {
-  e.preventDefault();
-  const formData = new FormData(document.getElementById("uploadForm"));
+    <div class="card-container">
+      <div class="card">
+        <h3>Content Details</h3>
+        <label for="topic">Topic or Product Name</label>
+        <textarea id="topic"></textarea>
 
-  const response = await fetch("http://localhost:8000/generate-content/", {
-    method: "POST",
-    body: formData,
-  });
+        <label for="contentType">Content Type</label>
+        <select id="contentType">
+          <option value="Instagram Caption">Instagram Caption</option>
+          <option value="Blog Post">Blog Post</option>
+        </select>
 
-  const data = await response.json();
-  alert(data.generated_content);
-};
-</script>
+        <button onclick="generateContent()">✨ Generate Content</button>
+      </div>
+
+      <div class="card output-card">
+        <h3>Generated Content</h3>
+        <div id="output">Your AI-generated content will appear here</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
