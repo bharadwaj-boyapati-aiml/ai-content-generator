@@ -2,36 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AI Content Generator</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Content Creator</title>
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>AI Content Generator</h1>
-    <p>Create engaging content for any platform using AI</p>
-
-    <div class="card-container">
-      <div class="card">
-        <h3>Content Details</h3>
-        <label for="topic">Topic or Product Name</label>
-        <textarea id="topic"></textarea>
-
-        <label for="contentType">Content Type</label>
-        <select id="contentType">
-          <option value="Instagram Caption">Instagram Caption</option>
-          <option value="Blog Post">Blog Post</option>
-        </select>
-
-        <button onclick="generateContent()">✨ Generate Content</button>
-      </div>
-
-      <div class="card output-card">
-        <h3>Generated Content</h3>
-        <div id="output">Your AI-generated content will appear here</div>
-      </div>
-    </div>
+    <h1>AI Content Creator</h1>
+    <textarea id="prompt" placeholder="Enter your content topic or idea..."></textarea>
+    <button onclick="generateContent()">Generate</button>
+    <div id="result"></div>
   </div>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="/static/script.js"></script>
 </body>
 </html>
