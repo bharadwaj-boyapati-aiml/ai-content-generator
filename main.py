@@ -8,7 +8,7 @@ from pydantic import BaseModel
 import google.generativeai as genai
 
 # Replace with your actual Gemini API Key
-GOOGLE_API_KEY = "your-gemini-api-key"
+GOOGLE_API_KEY = "AIzaSyAQ_-WVo3-GXS0wdeNFsJ6-vdw2lNNQ9os"
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # Load Gemini model
