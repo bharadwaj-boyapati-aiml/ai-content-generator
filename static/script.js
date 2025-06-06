@@ -1,33 +1,31 @@
-document.getElementById("generate-btn").addEventListener("click", async () => {
+async function generateContent() {
   const prompt = document.getElementById("prompt").value;
-  const resultDiv = document.getElementById("result");
+  const output = document.getElementById("output");
 
   if (!prompt.trim()) {
-    resultDiv.innerText = "Please enter a prompt.";
+    output.textContent = "Please enter a prompt.";
     return;
   }
 
-  resultDiv.innerText = "Generating...";
+  output.textContent = "Generating content...";
 
   try {
     const response = await fetch("/generate", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ prompt: prompt })
+      body: JSON.stringify({ prompt: prompt }),
     });
 
     const data = await response.json();
 
-    if (response.ok && data.content) {
-      resultDiv.innerText = data.content;
-    } else if (data.error) {
-      resultDiv.innerText = "Error: " + data.error;
+    if (response.ok) {
+      output.textContent = data.content || "No response.";
     } else {
-      resultDiv.innerText = "No content generated.";
+      output.textContent = data.error || "Something went wrong.";
     }
-  } catch (error) {
-    resultDiv.innerText = "Request failed: " + error.message;
+  } catch (err) {
+    output.textContent = "Error: " + err.message;
   }
-});
+}
