@@ -67,8 +67,17 @@ async def generate_text(prompt: Prompt):
         print("Received prompt:", prompt.prompt)  # Debug
 
         # Format the input
-        formatted_prompt = f"Write a catchy social media post about {prompt.prompt} that hooks the audience in the first line. And provide some hashtags too. Give post caption min 200 words in very attractive manner"
-
+        formatted_prompt = (
+        f"You are a professional social media content writer. "
+        f"Generate a highly engaging, visually compelling content for social media post on the topic: '{prompt.prompt}'.\n"
+        f"- Use an enthusiastic tone.\n"
+        f"- Write at least 200 words with some interesting emojis.\n"
+        f"- Begin with a powerful hook.\n"
+        f"- Include 3-5 trending hashtags related to the topic.\n"
+        f"- End with a strong call-to-action (CTA).\n"
+        f"- Ensure the post is suitable for Instagram.\n"
+        f"- Format it cleanly for copy-paste readiness.\n"
+)
         # Generate response from Gemini
         response = model.generate_content(formatted_prompt)
         print("Gemini response:", response.text)  # Debug
