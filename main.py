@@ -12,7 +12,7 @@ GOOGLE_API_KEY = "AIzaSyAQ_-WVo3-GXS0wdeNFsJ6-vdw2lNNQ9os"
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # Load Gemini model
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Initialize FastAPI app
 app = FastAPI()
